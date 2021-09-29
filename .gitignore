@@ -1,0 +1,20 @@
+.env
+.venv
+.idea
+
+
+*.DS_STORE
+cdk/*.swp
+cdk/package-lock.json
+cdk/__pycache__
+cdk/.pytest_cache
+cdk/.env
+cdk/.venv
+*.egg-info
+
+# CDK asset staging directory
+cdk/.cdk.staging
+cdk/cdk.out/*
+
+#Ignore Connectors
+connectors/*.jar

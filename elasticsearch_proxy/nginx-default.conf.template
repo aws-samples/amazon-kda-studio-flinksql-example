@@ -1,0 +1,8 @@
+server {
+    listen 80;
+    location / {
+    resolver 10.0.0.2;
+        proxy_pass http://${ES_ENDPOINT};
+        proxy_pass_request_headers on;
+    }
+}
