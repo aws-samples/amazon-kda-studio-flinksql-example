@@ -39,8 +39,10 @@ If you are a Windows platform, you would activate the virtualenv like this:
 .venv\Scripts\activate.bat
 ```
 
-Once the virtualenv is activated, you can install the required dependencies.
-
+Once the virtualenv is activated, navigate to the cdk directory and install the required dependencies.
+```
+cd cdk
+```
 ```
 pip install -r requirements.txt
 ```
@@ -78,10 +80,15 @@ Edit the AWS supported connectors section, tick the row `amazon-kinesis-sql-conn
 After saving click Add custom connector, choose the S3 bucket named `flinksqldemostack-kdaconnectorsbucket` and define 
 `flink-sql-connector-elasticsearch7_2.11-1.11.2.jar`as Path.
 
+Edit the AWS Supported connectors section. Tick `amazon-kinesis-sql-connector-flink` and click Save Changes.
+
+Start the Notebook by clicking `Run`.
+
 
 ### Create Elasticsearch Indices
 
 Set Elasticsearch endpoint as environment variable. Get the ServiceURL from the CDK Output after cdk deploy has been run.
+Replace the http endpoint with your own. Make sure you use HTTP protocol.
 ```shell script
 export ES_ENDPOINT = http://Flink-esPro-xxxxxxxxxxxx-xxxxxxxxxx.us-east-1-elb.amazon.com
 ```
@@ -95,7 +102,7 @@ curl --location --request PUT ${ES_ENDPOINT}/trip_duration \
   "mappings": {
     "properties": {
         "PULocationID": {"type": "integer" },
-        "avg_ride_duration": {"type": "integer"},
+        "avg_trip_duration": {"type": "integer"},
         "window_start": {"type": "date", "format": "yyyy-MM-dd HH:mm:ss"} }
     }
   }
@@ -104,10 +111,12 @@ curl --location --request PUT ${ES_ENDPOINT}/trip_duration \
 
 ## Analysis
 
-Run these commands in a the Amazon Kinesis Data Analytics Studio Notebook. Execute each statement.
+In the Kinesis Data Anyaltics console select the created Notebook and click `Open in Apache Zeppelin`. Create a new note
+and run these commands in a the Amazon Kinesis Data Analytics Studio Notebook. Execute each statement.
 Navigate to Amazon Kinesis Console, select Studio and Run the Notebook. Create a new File and use the following commands.
 1. Create Streaming Data Table
     
+    Replace the `STREAM_NAME` variable with the Kinesis stream name CDK created for you. You can find it in the Kinesis Console or Cloudformation output.
     ```sql
     %flink.ssql
     
@@ -132,6 +141,7 @@ Navigate to Amazon Kinesis Console, select Studio and Run the Notebook. Create a
 2. Create Elasticsearch Sink
     
     Insert a new cell below by pressing ESC followed by `Ctrl + Alt + b`.
+    Replace the ES_VPC_ENDPOINT variable in the following statement with your own ES endpoint. You can find it ine the Amazon OpenSearch console or the CloudFormation output.
     ```sql
     %flink.ssql
     
@@ -172,7 +182,10 @@ On the top right click Actions and then `Build`. Wait until the a green box appe
 
 ### Kibana Dashboard
 
-Get the Kibana URL from the CDK Output or CFN Output
+Get the Kibana URL from the CDK Output or CFN Output.
+Create an Index Pattern by navigating to Stack Management / Index Patterns. Define the index pattern name `trip_duration`.
+Click next and select `window_start` as time field.
+
 In the Kibana Dashboard navigate to Stack Management / Save Objects. Import the file dashboard.json from the repo.
 
 If you are not able to access Kibana check the Security Group Settings of your nginx Proxy.

@@ -22,7 +22,6 @@ from aws_cdk import (
 class FlinkSqlDemoStack(cdk.Stack):
 
 
-
     def __init__(self, scope: cdk.Construct, construct_id: str,
                  glueDBExists: bool,
                  cidr: str,
@@ -32,12 +31,6 @@ class FlinkSqlDemoStack(cdk.Stack):
 
         region = FlinkSqlDemoStack.of(self).region
         account_id = FlinkSqlDemoStack.of(self).account
-
-        # source = cdk.CfnParameter(
-        #     self, 'sourceIP',
-        #     type='String',
-        #     description='Source CIDR for Load Balancer'
-        # )
 
 
         connectors_bucket = s3.Bucket(
@@ -163,38 +156,19 @@ class FlinkSqlDemoStack(cdk.Stack):
             self, 'kdaPolicy',
             statements=[
                 iam.PolicyStatement(
-                    actions=['glue:GetDatabase'],
+                    actions=[
+                        'glue:GetTable', 'glue:GetTables',
+                        'glue:CreateTable', 'glue:UpdateTable',
+                        'glue:GetUserDefinedFunction','glue:GetDatabase',
+                        'glue:GetDatabases','glue:GetConnection', 'glue:GetPartitions',
+                        'glue:DeleteTable'
+                    ],
                     effect=iam.Effect.ALLOW,
                     resources=[
-                        'arn:aws:glue:{}:{}:database/default'.format(region, account_id),
-                        'arn:aws:glue:{}:{}:database/hive'.format(region, account_id),
-                        'arn:aws:glue:{}:{}:catalog'.format(region, account_id)
+                        'arn:aws:glue:{}:{}:*'.format(region, account_id),
+
                     ]
                 ),
-                iam.PolicyStatement(
-                    actions=['glue:GetConnection'],
-                    effect=iam.Effect.ALLOW,
-                    resources=[
-                        'arn:aws:glue:{}:{}:connection/*'.format(region, account_id),
-                        'arn:aws:glue:{}:{}:catalog'.format(region, account_id)
-                    ]
-                ),
-                iam.PolicyStatement(
-                    actions=['glue:GetTable', 'glue:GetTables', 'glue:CreateTable', 'glue:UpdateTable'],
-                    effect=iam.Effect.ALLOW,
-                    resources=[
-                        'arn:aws:glue:{}:{}:table/default'.format(region, account_id),
-                        'arn:aws:glue:{}:{}:database/default'.format(region, account_id),
-                        'arn:aws:glue:{}:{}:catalog'.format(region, account_id)
-                    ]
-                ),
-                iam.PolicyStatement(
-                    actions=['glue:GetDatabases'],
-                    effect=iam.Effect.ALLOW,
-                    resources=[
-                        'arn:aws:glue:{}:{}:catalog'.format(region, account_id),
-                    ]
-                )
             ]
         )
 
@@ -433,7 +407,14 @@ class FlinkSqlDemoStack(cdk.Stack):
             value=f"http://{es_proxy_service.load_balancer.load_balancer_dns_name}/_plugin/kibana"
         )
 
+        stream_name = cdk.CfnOutput(
+            self, 'streamName',
+            value=data_stream.stream_name
+        )
 
-
+        es_vpc_endpoint = cdk.CfnOutput(
+            self, 'esVPCEndpoint',
+            value=es_cluster.domain_endpoint
+        )
 
 

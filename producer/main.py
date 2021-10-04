@@ -43,7 +43,7 @@ def main():
     df = pd.concat(li, axis=0, ignore_index=True)
     df = df.sort_values(by=['tpep_pickup_datetime'])
     df.reset_index(drop=True, inplace=True)
-    logging.info('Dataframe created, starting streaming data')
+    logging.info(f'Dataframe created with {len(df)} records, starting streaming data')
 
     start_time = time.time()
     for index, row in df.iterrows():
@@ -56,9 +56,10 @@ def main():
             time_diff = time.time() - start_time
             logging.info(f'Sending with {round(index / time_diff)} records per second')
 
+        if index == len(df) -1:
+            logging.info('Reached end of data.')
 
 
-    logging.info('Reached end of data')
 
 
 
