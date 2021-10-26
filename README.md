@@ -192,6 +192,8 @@ If you are not able to access Kibana check the Security Group Settings of your n
 
 View the visuals in the Dashboard section.
 
+![dashboard](img/dashboard.png)
+
 ## Cleanup
 
 To remove any AWS resources deployed in this sample run the following command:
